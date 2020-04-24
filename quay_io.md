@@ -6,23 +6,23 @@ Before we can start creating Kubernetes resources, we need to obtain credentials
 
  * Create `taxi` Quay repos.   Login to your Quay.io account and create a repository `taxi`
 
-  ![Screenshot](img/create-taxi-in-quay.png)
+  ![Screenshot](img/quay/create-taxi-in-quay.png)
 
  * Login to your Quay.io account that you can generate read/write credentials for.  In user's name pulldown menu, goto Account Settings -> Robot Account (button on the left).   Create a robot account for yourself.  Click your robot account link.
 
- ![Screenshot](./img/quay-create-robot-account.png)
+ ![Screenshot](./img/quay/quay-create-robot-account.png)
 
  * Select `Edit Repository Permissions` menu item
 
-  ![Screenshot](./img/edit-token-permission.png)
+  ![Screenshot](./img/quay/edit-token-permission.png)
 
 * Grant `write` permission to repository `taxi`
 
- ![Screenshot](./img/grant-write-permission.png)
+ ![Screenshot](./img/quay/grant-write-permission.png)
 
 * Download Docker Configuration file to `<Quay user>-robot-auth.json`
 
-   ![Screenshot](./img/quay-download-docker-config.png)
+   ![Screenshot](./img/quay/quay-download-docker-config.png)
 
 * Create `regcred` secret from Docker Configuration file
 
