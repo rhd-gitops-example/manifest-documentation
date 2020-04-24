@@ -60,6 +60,8 @@ https://github.com/bigkevmcd/taxi
 
 ## Clone odo source and compile it
 
+You can skip this step and download `odo` binary instead from [Google Drive](https://drive.google.com/drive/folders/1F6xS8JTXKOoCODWO6HvdaIXZM14GPgdt)
+
 Clone the source to your GOPATH
 
 ```shell
