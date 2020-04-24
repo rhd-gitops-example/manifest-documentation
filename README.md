@@ -9,13 +9,13 @@ components:
 
  * OpenShift Pipelines Operator
  * Sealed Secrets [installed](https://github.com/bitnami-labs/sealed-secrets#installation)
- * ArgoCD [installed](https://operatorhub.io/operator/argocd-operator) this
-   _MUST_ be installed to a project called `argocd`.
+ * ArgoCD [installed](https://operatorhub.io/operator/argocd-operator)
+   There is a [guide](./argocd.md) to installing it here. **NOTE**: it MUST be
+   installed to the `argocd` namespace.
 
 You will need to be logged in with administrator privileges.
 
-During installation, we check that the Tekton resources are installed, also, we
-generate sealed secrets using the Sealed Secrets operator.
+While bootstrapping the manifest, the tool will generate sealed secrets using the Sealed Secrets operator.
 
 ## Generating credentials for pushing images
 
@@ -56,7 +56,7 @@ $ odo manifest bootstrap \
 | --gitops-webhook-secret | This is used to validate incoming hooks. |
 | --image-repo            | Where should we configure your builds to push to? |
 | --dockercfgjson         | This is used to authenticate image pushes to your image-repo. |
-| --prefix                |  This is used to help separate user namespaces. |
+| --prefix                | This is used to help separate user namespaces. |
 
 ## Exploring the manifest
 
@@ -124,12 +124,12 @@ is opened.
 This is the default pipeline specification for the `tst-dev` environment, you
 can find the definitions for these in these two files:
 
- `./environments/<prefix>cicd/base/pipelines/07-templates/app-ci-build-pr-template.yaml`
- `./environments/<prefix>cicd/base/pipelines/06-bindings/github-pr-binding.yaml`
+ * `environments/<prefix>cicd/base/pipelines/07-templates/app-ci-build-pr-template.yaml`
+ * `environments/<prefix>cicd/base/pipelines/06-bindings/github-pr-binding.yaml`
 
 By default this triggers a PipelineRun of this pipeline
 
- `./environments/<prefix>cicd/base/pipelines/05-pipelines/app-ci-pipeline.yaml`
+ * `environments/<prefix>cicd/base/pipelines/05-pipelines/app-ci-pipeline.yaml`
 
 These files are not managed directly by the manifest, you're free to change them
 for your own needs, by default they use [Buildah](https://github.com/containers/buildah)
@@ -149,12 +149,12 @@ apps:
         name: github-webhook-secret-taxi-svc
 ```
 
-This defines an app called `taxi`, which has a single service called `taxi-svc`.
+The YAML above defines an app called `taxi`, which has a single service called `taxi-svc`.
 
 The configuration for these is written out to:
 
- `./environments/<prefix>dev/services/taxi-svc/base/config/`
- `./environments/<prefix>dev/apps/taxi/base/config/`
+ * `environments/<prefix>dev/services/taxi-svc/base/config/`
+ * `environments/<prefix>dev/apps/taxi/base/config/`
 
 The `taxi` app's configuration references the services configuration.
 
@@ -165,18 +165,34 @@ binding), the secret is used to authenticate incoming hooks from GitHub.
 
 ## Bringing the bootstrapped environment up
 
+First of all, let's get started with our Git repository.
+
+From the root of your gitops directory (with the manifest.yaml), execute the
+following commands:
+
 ```shell
 $ git init .
 $ git add .
 $ git commit -m "Initial commit."
 $ git remote add origin <insert gitops repo>
 $ git push -u origin master
+```
+
+This should initialise the GitOps repository, this is the start of your journey
+to deploying applications via Git.
+
+Next, well bring up our deployment infrastructure, this is only necessary at the
+start, the configuration should be self-hosted thereafter.
+
+```shell
 $ oc apply -k environments/tst-dev/env/base
 $ oc apply -k environments/tst-argocd/config
 $ oc apply -k environments/tst-cicd/base
 ```
 
 ## Changing the initial deployment
+
+The bootstrap creates a `Deployment` in `environments/<prefix>-dev/services/<service name>-svc/base/config/100-deployment.yaml` this should bring up nginx, this is purely for demo purposes, you'll need to change this to deploy your built image.
 
 ## Your first CI run
 

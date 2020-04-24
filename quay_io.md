@@ -26,5 +26,5 @@ Before we can start creating Kubernetes resources, we need to obtain credentials
 
 * Create `regcred` secret from Docker Configuration file
 
-**_NOTE:_**  Make sure `QUAY_USER` envrionment variable is set.
+**_NOTE:_**  Make sure `QUAY_USER` environment variable is set.
 **_NOTE:_**  Modify path to downloaded file accordingly.
