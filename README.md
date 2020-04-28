@@ -15,7 +15,7 @@ components:
 
 You will need to be logged in with administrator privileges.
 
-While bootstrapping the manifest, the tool will generate sealed secrets using the Sealed Secrets operator.
+While bootstrapping the manifest, the tool will generate secrets using the Sealed Secrets operator.
 
 ## Generating credentials for pushing images
 
@@ -46,6 +46,15 @@ $ odo manifest bootstrap \
   --gitops-webhook-secret testing2 \
   --image-repo quay.io/<username>/taxi \
   --dockercfgjson ~/Downloads/<username>-auth.json --prefix tst-
+```
+
+**NOTE**: DO NOT use `testing` and `testing2` as your secrets.
+
+Per the (GitHub documentation)[https://developer.github.com/webhooks/securing/]
+you should generate a secret for each of them:
+
+```shell
+$ ruby -rsecurerandom -e 'puts SecureRandom.hex(20)'
 ```
 
 | Option                  | Description |
@@ -88,6 +97,8 @@ environments:
 
 The bootstrap creates four environments, `dev`, `stage`, `cicd` and `argocd`
 with a user-supplied prefix.
+
+Namespaces are generated for the `dev`, `stage` and `cicd` environments.
 
 The name of the app and service are derived from the last component of your
 `app-repo-url` e.g. if your bootstrap with `--app-repo-url
@@ -181,7 +192,7 @@ $ git push -u origin master
 This should initialise the GitOps repository, this is the start of your journey
 to deploying applications via Git.
 
-Next, well bring up our deployment infrastructure, this is only necessary at the
+Next, we'll bring up our deployment infrastructure, this is only necessary at the
 start, the configuration should be self-hosted thereafter.
 
 ```shell
@@ -190,13 +201,47 @@ $ oc apply -k environments/tst-argocd/config
 $ oc apply -k environments/tst-cicd/base
 ```
 
+You should now be able to create a route to your new service, it should be
+running [nginx](https://nginx.org/) and serving a page.
+
 ## Changing the initial deployment
 
 The bootstrap creates a `Deployment` in `environments/<prefix>-dev/services/<service name>-svc/base/config/100-deployment.yaml` this should bring up nginx, this is purely for demo purposes, you'll need to change this to deploy your built image.
 
+```yaml
+spec:
+  containers:
+  - image: nginxinc/nginx-unprivileged:latest
+    imagePullPolicy: Always
+    name: taxi-svc
+```
+
+You'll want to replace this with the image for your application, if you've built
+it.
+
 ## Your first CI run
+
+Part of the configuration bootstraps a simple TektonCD pipeline for building code when a pull-request is opened.
+
+You will need to create a new Webhook for the CI:
+
+![Creating a Webhook with a Secret](img/github/create-a-webhook.png)
+
+The secret should be the secret you provided on the command-line.
+
+Configure the endpoint to point at the route for the EventListener in the
+`-cicd` project in OpenShift.
+
+Make sure you change the Content Type to `"application/json"` and enable the
+"just send me everything" option for events (otherwise we'll only receive
+"push" events).
+
+Make a change to your application source, the `taxi` repo from the example, it
+can be as simple as editing the `README.md` and propose a change as a
+Pull Request.
+
+This should trigger the pipelinerun, 
 
 ## Changing the default CI run
 
 ## Adding an additional application
-
