@@ -240,8 +240,142 @@ Make a change to your application source, the `taxi` repo from the example, it
 can be as simple as editing the `README.md` and propose a change as a
 Pull Request.
 
-This should trigger the pipelinerun, 
+This should trigger the PipelineRun:
+
+![PipelineRun with succesful completion](img/ocp/pipelinerun-success.png)
 
 ## Changing the default CI run
+
+Before this next stage, we need to ensure that there's a Webhook configured for
+the "gitops" repo.
+
+You will need to create a new Webhook for the CI:
+
+![Creating a Webhook with a Secret](img/github/create-a-webhook.png)
+
+It will need to be configured with the secret that you used when creating the
+manifest.
+
+This step involves changing the CI definition for your application code.
+
+The default CI pipeline we provide is defined in the manifest file:
+
+```
+environments:
+- name: tst-dev
+  pipelines:
+    integration:
+      binding: github-pr-binding
+      template: app-ci-template
+```
+
+This template drives a Pipeline that is stored in this file:
+
+ * `environments/<prefix>cicd/base/pipelines/05-pipelines/app-ci-pipeline.yaml`
+
+An abridged version is shown below, it has a single task `build-image`, which
+executes the `buildah` task, which basically builds the source and generates an
+image and pushes it to your image-repo.
+
+```yaml
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+spec:
+  resources:
+  - name: source-repo
+    type: git
+  tasks:
+  - name: build-image
+      inputs:
+      - name: source
+        resource: source-repo
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+```
+
+Normally, you'd at least run a simple test of the code before you build the
+code:
+
+Write the following Task to this file:
+
+ * `environments/<prefix>cicd/base/pipelines/04-tasks/go-test-task.yaml`
+
+```yaml
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: go-test
+  namespace: tst-cicd
+spec:
+  inputs:
+    resources:
+    - name: source
+      description: the git source to execute on
+      type: git
+  steps:
+    - name: go-test
+      image: golang:latest
+      command: ["go", "test", "./..."]
+```
+
+This is a simple test task for a Go application, it just runs the tests.
+
+Update the pipeline in this file:
+
+ * `environments/<prefix>cicd/base/pipelines/05-pipelines/app-ci-pipeline.yaml`
+
+
+```yaml
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  creationTimestamp: null
+  name: app-ci-pipeline
+  namespace: tst-cicd
+spec:
+  params:
+  - name: REPO
+    type: string
+  - name: COMMIT_SHA
+    type: string
+  resources:
+  - name: source-repo
+    type: git
+  - name: runtime-image
+    type: image
+  tasks:
+  - name: go-ci
+    resources:
+      inputs:
+      - name: source
+        resource: source-repo
+    taskRef:
+      kind: Task
+      name: go-test
+  - name: build-image
+    runAfter:
+      - go-ci
+    params:
+    - name: TLSVERIFY
+      value: "true"
+    resources:
+      inputs:
+      - name: source
+        resource: source-repo
+      outputs:
+      - name: image
+        resource: runtime-image
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+```
+
+Commit and push this code, and open a Pull Request, you should see a PipelineRun
+being executed.
+
+![PipelineRun doing a dry run of the configuration](img/ocp/pipelinerun-dryrun.png)
+
+This validates that the YAML can be applied, by executing a `kubectl apply --dry-run`.
 
 ## Adding an additional application
