@@ -225,7 +225,7 @@ Part of the configuration bootstraps a simple TektonCD pipeline for building cod
 
 You will need to create a new Webhook for the CI:
 
-![Creating a Webhook with a Secret](img/github/create-a-webhook.png)
+![Creating a Webhook with a Secret](img/github/create-github-webhook.png)
 
 The secret should be the secret you provided on the command-line.
 
@@ -233,7 +233,7 @@ Configure the endpoint to point at the route for the EventListener in the
 `-cicd` project in OpenShift.
 
 Make sure you change the Content Type to `"application/json"` and enable the
-"just send me everything" option for events (otherwise we'll only receive
+"send me everything" option for events (otherwise we'll only receive
 "push" events).
 
 Make a change to your application source, the `taxi` repo from the example, it
@@ -260,7 +260,7 @@ the "gitops" repo.
 
 You will need to create a new Webhook for the CI:
 
-![Creating a Webhook with a Secret](img/github/create-a-webhook.png)
+![Creating a Webhook with a Secret](img/github/create-github-webhook.png)
 
 It will need to be configured with the secret that you used when creating the
 manifest.
