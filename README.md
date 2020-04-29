@@ -244,6 +244,15 @@ This should trigger the PipelineRun:
 
 ![PipelineRun with succesful completion](img/ocp/pipelinerun-success.png)
 
+Drilling into the PipelineRun we can see that it executed our single task:
+
+![PipelineRun with steps](img/ocp/pipelinerun-succeeded-detail.png)
+
+And finally, we can see the logs that the build completed and the image was
+pushed:
+
+![PipelineRun with logs](img/ocp/pipelinerun-succeeded-logs.png)
+
 ## Changing the default CI run
 
 Before this next stage, we need to ensure that there's a Webhook configured for
