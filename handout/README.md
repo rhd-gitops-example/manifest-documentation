@@ -1,4 +1,4 @@
-# Manifest Demo Handout Eng Sync Meeting From 4/13/2020
+# Manifest Demo Handout from Eng Sync Meeting 4/13/2020
 
 ## Install Tekton Operator
 

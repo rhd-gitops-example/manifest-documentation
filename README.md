@@ -39,7 +39,7 @@ Kustomize.
 ## Bootstrapping the Manifest
 
 ```shell
-$ odo manifest bootstrap \
+$ odo pipelines bootstrap \
   --app-repo-url https://github.com/<username>/taxi.git \
   --app-webhook-secret testing \
   --gitops-repo-url https://github.com/<username>/gitops.git \
@@ -61,7 +61,7 @@ $ ruby -rsecurerandom -e 'puts SecureRandom.hex(20)'
 | ----------------------- | ----------- |
 | --app-repo              | This is the source code to your first application. |
 | --app-webhook-secret    | Creates a secret used to validate incoming hooks. |
-| --gitops-repo-url       | This is where your configuration and manifest live. |
+| --gitops-repo-url       | This is where your configuration and pipelines live. |
 | --gitops-webhook-secret | This is used to validate incoming hooks. |
 | --image-repo            | Where should we configure your builds to push to? |
 | --dockercfgjson         | This is used to authenticate image pushes to your image-repo. |
@@ -178,7 +178,7 @@ binding), the secret is used to authenticate incoming hooks from GitHub.
 
 First of all, let's get started with our Git repository.
 
-From the root of your gitops directory (with the manifest.yaml), execute the
+From the root of your gitops directory (with the pipelines.yaml), execute the
 following commands:
 
 ```shell
